@@ -38,19 +38,19 @@ int main(int argc, char *argv[])
 		 
 	/* Enable SO_REUSEADDR to allow multiple instances of this */
 	/* application to receive copies of the multicast datagrams. */
-	
+
 	int reuse = 1;
 	if(setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(reuse)) < 0)
 		errormsg("Setting SO_REUSEADDR error");
 	else
 		printf("Setting SO_REUSEADDR...OK.\n");
-	
+
 	 
 	/* Bind to the proper port number with the IP address */
 	/* specified as INADDR_ANY. */
 	memset((char *) &localSock, 0, sizeof(localSock));
 	localSock.sin_family = AF_INET;
-	localSock.sin_port = htons(4321);
+	localSock.sin_port = htons(5566);
 	localSock.sin_addr.s_addr = INADDR_ANY;
 	if(bind(sd, (struct sockaddr*)&localSock, sizeof(localSock)))
 		errormsg("Binding datagram socket error");
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 	/* datagrams are to be received. */
 	group.imr_multiaddr.s_addr = inet_addr("226.1.1.1");
 	/* your ip address */ 
-	group.imr_interface.s_addr = inet_addr("127.0.0.1"); 
+	group.imr_interface.s_addr = inet_addr("10.0.2.15"); 
 	/* IP_ADD_MEMBERSHIP:  Joins the multicast group specified */ 
 	if(setsockopt(sd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&group, sizeof(group)) < 0)
 		errormsg("Adding multicast group error");
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 		printf("Adding multicast group...OK.\n");
 
 	struct timeval timeOut;//set recv timer for socket
-	timeOut.tv_sec = 5;// 5 sec timeout
+	timeOut.tv_sec = 10;// 5 sec timeout
 	timeOut.tv_usec = 0;
     if (setsockopt(sd, SOL_SOCKET, SO_RCVTIMEO, &timeOut, sizeof(timeOut)) < 0)
 		errormsg("fail to set socket recv timeout timer\n");
@@ -103,10 +103,10 @@ int main(int argc, char *argv[])
 	fclose(fp);
 	close(sd);
 
-   	struct stat send_st; //get send file size from system
-	stat("recv.txt", &send_st);
-	float send_filesize = send_st.st_size;
-	float send_filesizeMB = send_filesize / 1000.0 / 1000.0; // byte to MB
-	printf("file size : %f MB \n",send_filesizeMB);
+   	struct stat file_st; //get send file size from system
+	stat("recv.txt", &file_st);
+	float filesize = file_st.st_size;
+	float filesizeMB = filesize / 1000.0 / 1000.0; // byte to MB
+	printf("file size : %f MB \n",filesizeMB);
 	return 0;
 }
